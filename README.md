@@ -1,12 +1,15 @@
 # FastAPI + React
 
+## Index
+- [Backend - FastAPI](#backend---fastapi)
+
 ## Backend - FastAPI
-1. Setup conda environment
+### 1. Setup conda environment
 ```linux
 $ cd backend
 $ conda create --name fastapi-react-prac python=3.10
 ```
-2. Install dependencies
+### 2. Install dependencies
 ```linux
 pip install -r requirements.txt
 ```
