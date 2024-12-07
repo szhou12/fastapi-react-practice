@@ -7,10 +7,10 @@ Why it's needed: The app object is where you define all your routes (URLs) and t
 """
 app = FastAPI()
 
-# tutorial -> tutorial.py
+# $ uvicorn tutorial_fastapi:app --reload
+# tutorial_fastapi -> tutorial_fastapi.py
 # app -> FastAPI instance name defined above
 # --reload -> to reflect code changes automatically
-# uvicorn tutorial:app --reload
 
 # http://127.0.0.1:8000/docs -> test out your defined routes
 
