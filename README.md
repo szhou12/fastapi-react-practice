@@ -26,3 +26,7 @@ Dependency Explanation:
 - [Building a React Login Page Template](https://clerk.com/blog/building-a-react-login-page-template)
 - [Creating a React Frontend for an AI Chatbot](https://medium.com/@codeawake/ai-chatbot-frontend-1823b9c78521)
 - [Building an AI Chatbot Powered by Your Data](https://medium.com/@codeawake/ai-chatbot-5bd2fa3324e3)
+
+## UML Sequence Diagram
+![mermaid-diagram-2024-12-09-151515](https://github.com/user-attachments/assets/265125cf-43a1-47b2-bf67-177d53b004d0)
+
