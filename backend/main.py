@@ -1,10 +1,12 @@
 from typing import Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+import bcrypt
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+# from passlib.context import CryptContext
+
 
 # used in encrption and hashing algo
 # $ openssl rand -hex 32
@@ -12,12 +14,12 @@ SECRET_KEY = "8f0541d753e4f77f3f79a25dfa337819280ecf7d44b5c62f62f0b8b967c37968"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-fake_db = {
+db = {
     "tim": {
         "username": "tim",
         "full_name": "Tim Ruscica",
         "email": "tim@gmail.com",
-        "hashed_password": "",
+        "hashed_password": "$2b$12$jgJ6dvC0S/MvcUm.E3QboeCnoogbL8UcgibNr4s29W8dZjxthBfYC", # get_password_hash("tim1234")
         "disabled": False # False if signed in but the access token is not valid or expired
     }
 }
@@ -64,8 +66,16 @@ Breakdown:
 Why Use It?
 	•	To hash user passwords securely before storing them in a database.
 	•	To verify user-provided passwords against stored hashed passwords during authentication.
+
+NOTE: The use of passlib is abandoned in this code as it produces error: AttributeError: module 'bcrypt' has no attribute '__about__'. Directly use bcrypt instead.
 """
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# def verify_password(plain_password, hashed_password):
+#     return pwd_context.verify(plain_password, hashed_password)
+
+# def get_password_hash(password):
+#     return pwd_context.hash(password)
 
 """
 oauth2_scheme sets up an OAuth2 bearer token authentication scheme.
@@ -95,18 +105,29 @@ Workflow:
 
 app = FastAPI()
 
-# utility functions to authenticate users and hash their passwords
-def verify_password(plain_password, hashed_password):
-    """
-    Checks if an input plain password matches a hashed password stored in DB.
-    """
-    return pwd_context.verify(plain_password, hashed_password)
 
-def get_password_hash(password):
+# utility functions to authenticate users and hash their passwords
+
+def get_password_hash(password: str) -> str:
     """
-    Hashes a plain text password for storage in the database.
+    Hash a plain text password using bcrypt for storage in the database.
+    It is supposed to generate random hashes when re-run for the same password. 
+    The affiliated salt is used to ensure the randomly generated hash matches the input password. 
     """
-    return pwd_context.hash(password)
+    pwd_bytes = password.encode('utf-8') # convert str to bytes
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password=pwd_bytes, salt=salt)
+    return hashed_password.decode('utf-8')
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """
+    Check if an input plain password matches a hashed password stored in DB.
+    """
+    plain_password_bytes = plain_password.encode('utf-8')
+    hashed_password_bytes = hashed_password.encode('utf-8')
+    return bcrypt.checkpw(password = plain_password_bytes, hashed_password = hashed_password_bytes)
+
 
 def get_user(db, username: str):
     """
@@ -138,9 +159,9 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     """
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.now(datetime.timezone.utc) + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(datetime.timezone.utc) + timedelta(minutes=15)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     # Combines the input data (including exp) into a JWT string using SECRET_KEY and signing algorithm
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -198,4 +219,29 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
-# Define Token Route
+"""
+This token route will be called when a user is signing in with their (username, password), and this function will return a Token object that we can use for whatever the duration the token is.
+"""
+@app.post("/token", response_model=Token)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    user = authenticate_user(db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, 
+                            detail="Incorrect username or password",
+                            headers={"WWW-Authenticate": "Bearer"})
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+## Sample routes that require authorization - need valid token to call
+# The following both routes rely on get_current_active_user, which relies on get_current_user, which relies on oauth2_scheme, which relies on token through tokenUrl="token". This means that if we don't have a token, an exception will be raised saying unauthorized, and thus these 2 routes cannot be called.
+# In real web flow, user will request a token from frontend, then they will save the token and use it to make any requests until the token expires. Then they will request a new token. 
+@app.get("/users/me", response_model=User)
+async def read_users_me(current_user: User = Depends(get_current_active_user)):
+    return current_user
+
+@app.get("/users/me/items")
+async def read_own_items(current_user: User = Depends(get_current_active_user)):
+    return [{"item_id": 1, "owner": current_user}]
