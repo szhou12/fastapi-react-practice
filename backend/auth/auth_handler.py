@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from jwt.exceptions import InvalidTokenError
 
 from ..database import get_db
-from ..schemas import TokenData
+from ..schemas import TokenData, UserInDB
 from ..models import User
 
 SECRET_KEY = "8f0541d753e4f77f3f79a25dfa337819280ecf7d44b5c62f62f0b8b967c37968"
@@ -44,7 +44,23 @@ def get_user(db: Session, username: str):
     Retrieves a user from the database by username.
     """
     db_user = db.query(User).filter(User.username == username).first()
-    return db_user
+    return db_user # ORM object
+
+# def get_user(db: Session, username: str) -> Optional[UserInDB]:
+#     """
+#     Retrieves a user from the database by username and converts to Pydantic model.
+#     Returns None if user not found.
+#     """
+#     db_user = db.query(User).filter(User.username == username).first()
+#     if db_user is None:
+#         return None
+    
+#     # Convert SQLAlchemy ORM model to Pydantic model
+#     return UserInDB(
+#         username=db_user.username,
+#         email=db_user.email,
+#         hashed_password=db_user.hashed_password
+#     )
 
 def authenticate_user(db: Session, username: str, password: str):
     """

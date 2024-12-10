@@ -156,3 +156,44 @@ dmypy.json
 # If you're using PyCharm, VSCode, etc., you might want to exclude their directories
 .idea/
 .vscode/
+
+# SQLite database files
+*.db
+*.sqlite
+*.sqlite3
+
+## Template to ignore Node.js (React) project
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Optional npm cache directory
+.npm/
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Optional REACT app configuration overrides
+.relayrc
+.swcrc
+.babelrc
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
+# TypeScript build info
+*.tsbuildinfo

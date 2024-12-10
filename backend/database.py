@@ -5,7 +5,7 @@ from .models import Base # will be in DAO dir
 DATABASE_URL = "sqlite:///./test.db"
 
 engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bine=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 metadata = MetaData()
 
 def get_db():

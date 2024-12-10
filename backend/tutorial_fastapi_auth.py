@@ -256,6 +256,10 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 # In real web flow, user will request a token from frontend, then they will save the token and use it to make any requests until the token expires. Then they will request a new token. 
 @app.get("/users/me", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
+    """
+    FastAPI does automatic conversion: 
+        the dependency get_current_active_user() returns UserInDB. FastAPI will follow the defined response_model=User and only take out needed fields from UserInDB. Finally, FastAPI will create a User object and return.
+    """
     return current_user
 
 @app.get("/users/me/items")
