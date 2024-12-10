@@ -1,6 +1,7 @@
 from typing import Optional
 from datetime import datetime, timedelta, timezone
 import bcrypt
+
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
@@ -68,6 +69,7 @@ Why Use It?
 	•	To verify user-provided passwords against stored hashed passwords during authentication.
 
 NOTE: The use of passlib is abandoned in this code as it produces error: AttributeError: module 'bcrypt' has no attribute '__about__'. Directly use bcrypt instead.
+Ref: https://github.com/pyca/bcrypt/issues/684
 """
 # pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -102,7 +104,7 @@ Workflow:
 4.	oauth_2_scheme extracts the token and makes it available to your endpoint logic for verification and access control.
 """
 
-
+# $ uvicorn tutorial_fastapi_auth:app --reload
 app = FastAPI()
 
 
@@ -187,6 +189,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     1. Verifies the JWT token by decoding it using jwt.decode.
     2. Extracts user information from the token payload.
     3. Retrieves the user object from a database or in-memory storage.
+
+    jwt.decode() automatically checks if the current time is past the "exp" time. If the token is expired, it raises a JWTError.
     """
     credential_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -196,7 +200,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
     # Step 1: Decode JWT
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM]) # payload = user data
         username: str = payload.get("sub")
         if username is None:
             raise credential_exception
@@ -221,6 +225,18 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 
 """
 This token route will be called when a user is signing in with their (username, password), and this function will return a Token object that we can use for whatever the duration the token is.
+
+@app.post("/token"): Declares this function as an HTTP POST endpoint at the /token path.
+response_model=Token: Specifies that the returned value should follow the Token Pydantic model.
+
+OAuth2PasswordRequestForm: A built-in utility from FastAPI for OAuth2 password authentication. It extracts username and password from the application/x-www-form-urlencoded request body.
+Depends(): Injects OAuth2PasswordRequestForm into the function. FastAPI automatically parses the form data from the request.
+
+Workflow:
+1. A user submits their username and password to /token using an HTTP POST request with application/x-www-form-urlencoded body.
+2. The server validates the credentials using authenticate_user()
+3. If authentication succeeds, the server generates a signed JWT (access token).
+4. The server returns the access token to the client.
 """
 @app.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):

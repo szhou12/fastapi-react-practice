@@ -4,6 +4,10 @@ from pydantic import BaseModel
 """
 What it does: This creates an instance of the FastAPI application, which will serve as the core of your backend.
 Why it's needed: The app object is where you define all your routes (URLs) and their corresponding logic. It acts as the central “brain” of the application.
+
+FastAPI() creates an instance of the main application. It acts as the central object that orchestrates all routes, middleware, dependencies, and configurations.
+
+Application Entry Point: ASGI server (e.g., Uvicorn) starts the application from here.
 """
 app = FastAPI()
 
