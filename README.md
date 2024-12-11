@@ -70,6 +70,10 @@ frontend $ npm run dev
 - [Building an AI Chatbot Powered by Your Data](https://medium.com/@codeawake/ai-chatbot-5bd2fa3324e3)
 - [full-stack-fastapi-template](https://github.com/fastapi/full-stack-fastapi-template/tree/master)
 
-## UML Sequence Diagram
+## UML Sequence Diagram - Backend
 ![mermaid-diagram-2024-12-09-151515](https://github.com/user-attachments/assets/265125cf-43a1-47b2-bf67-177d53b004d0)
+
+
+## UML Sequence Diagram - Frontend
+![mermaid-diagram-2024-12-10-175621](https://github.com/user-attachments/assets/867ab168-c5ca-422c-bfb2-3154d0b9a086)
 
