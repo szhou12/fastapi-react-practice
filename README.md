@@ -20,8 +20,13 @@ Dependency Explanation:
 - `PyJWT`: encoding and decoding JSON Web Tokens (JWT).
 - `python-decouple`: organize configuration settings, especially secrets (e.g. `.env`), outside the source code.
 
+### 3. Start Backend server
+```linux
+$ python main.py 
+```
+
 ## Frontend - React
-### Step 1 Set Up React Project
+### 1. Set Up React Project
 ```linux
 # upgrade npm
 sudo npm install -g npm@latest
@@ -41,7 +46,7 @@ npm install axios
 
 npm install react-router-dom
 ```
-### Step 2 Write Code
+### 2. Write Code
 Go to `/frontend/src`:
 1. create and edit `api.js` `api.js`
 2. create `/contexts`:
@@ -51,9 +56,9 @@ Go to `/frontend/src`:
     - create and edit `Register.jsx`
     - create and edit `UserProfile.jsx`
 4. edit `App.jsx`
-### Step 3 Start Frontend Server
+### 3. Start Frontend Server
 ```linux
-npm run dev
+frontend $ npm run dev
 ```
 
 
