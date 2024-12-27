@@ -3,9 +3,9 @@
 ## Table of Contents
 - [Backend - FastAPI](#backend---fastapi)
 - [Frontend - React](#frontend---react)
-- React Tutorial
-	- [React核心语法]()
-	- [React Component通信与插槽]()
+- [React Tutorial](https://github.com/szhou12/fastapi-react-practice/blob/main/react-tutorial.md)
+	- React核心语法
+	- React Component通信与插槽
 
 ## Backend - FastAPI
 ### 1. Setup conda environment
